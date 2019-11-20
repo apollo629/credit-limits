@@ -1,7 +1,10 @@
 package com.byinal.creditLimits;
 
+import java.util.List;
+
 public interface CreditLimitRetriever {
 
-    void retrieve();
+    List<Customer> retrieve();
 
+    String getName();
 }

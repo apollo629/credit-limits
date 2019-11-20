@@ -1,5 +1,7 @@
 package com.byinal.creditLimits;
 
+import org.springframework.stereotype.Service;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.URI;
@@ -7,24 +9,30 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class PrnCreditLimitRetriever implements CreditLimitRetriever {
 
     @Override
-    public void retrieve() {
+    public List<Customer> retrieve() {
         try {
             URI uri = getClass().getClassLoader().getResource("Workbook2.prn").toURI();
             BufferedReader bufferedReader = Files.newBufferedReader(Paths.get(uri), Charset.forName("ISO-8859-1"));
-            List<Customer> customerList = bufferedReader.lines()
+            return bufferedReader.lines()
                     .skip(1)
                     .map(this::mapToCustomer)
                     .collect(Collectors.toList());
-            System.out.println(customerList);
         } catch (URISyntaxException | IOException e) {
-            e.printStackTrace();
+            return Collections.emptyList();
         }
+    }
+
+    @Override
+    public String getName() {
+        return "PRN";
     }
 
     private Customer mapToCustomer(String line) {
@@ -37,10 +45,4 @@ public class PrnCreditLimitRetriever implements CreditLimitRetriever {
                 .birthday(line.substring(73, 82).trim())
                 .build();
     }
-
-    public static void main(String[] args) {
-        CreditLimitRetriever creditLimitRetriever = new PrnCreditLimitRetriever();
-        creditLimitRetriever.retrieve();
-    }
-
 }
